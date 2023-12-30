@@ -6,12 +6,12 @@ type File = {
 };
 
 export async function fetchFiles(): Promise<File[]> {
-	const data = await fetch(Endpoints.Files);
+	const data = await fetch(Endpoints.files);
 	return await data.json();
 }
 
 export async function createFile(filesCount: number): Promise<File> {
-	const data = await fetch(Endpoints.Files, {
+	const data = await fetch(Endpoints.files, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
@@ -22,4 +22,10 @@ export async function createFile(filesCount: number): Promise<File> {
 		}),
 	});
 	return await data.json();
+}
+
+export async function deleteFile(fileID: number): Promise<void> {
+	await fetch(Endpoints.file(fileID), {
+		method: "DELETE",
+	});
 }
