@@ -1,25 +1,27 @@
 import { Endpoints } from "../../enums";
 
-type File = {
+type FileRecord = {
 	id: number;
 	name: string;
+	size: number;
 };
 
-export async function fetchFiles(): Promise<File[]> {
+export async function fetchFiles(): Promise<FileRecord[]> {
 	const data = await fetch(Endpoints.files);
 	return await data.json();
 }
 
-export async function createFile(filesCount: number): Promise<File> {
+type CreateFileProps = {
+	file: File;
+};
+
+export async function createFile({ file }: CreateFileProps): Promise<FileRecord> {
+	const fileRecordData = new FormData();
+	fileRecordData.append("file", file);
+
 	const data = await fetch(Endpoints.files, {
 		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify({
-			id: filesCount + 1,
-			name: `file-${filesCount + 1}.pdf`,
-		}),
+		body: fileRecordData,
 	});
 	return await data.json();
 }

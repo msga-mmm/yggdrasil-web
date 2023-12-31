@@ -1,9 +1,11 @@
+import { useRef } from "react";
 import { useFiles, useCreatFile, useDeleteFile } from "./queries";
 
 export default function FilesPage() {
 	const { data: files } = useFiles();
 	const { mutate: createFile } = useCreatFile();
 	const { mutate: deleteFile } = useDeleteFile();
+	const fileInputRef = useRef<HTMLInputElement | null>(null);
 
 	return (
 		<div>
@@ -16,7 +18,20 @@ export default function FilesPage() {
 					</li>
 				))}
 			</ul>
-			<button onClick={() => createFile(files?.length ?? 0)}>
+
+			<input ref={fileInputRef} type="file" />
+
+			<button
+				onClick={() => {
+					const file = fileInputRef.current?.files?.item(0);
+
+					if (file === null || file === undefined) return;
+
+					createFile({
+						file,
+					});
+				}}
+			>
 				upload file
 			</button>
 		</div>
