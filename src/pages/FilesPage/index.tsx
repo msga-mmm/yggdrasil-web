@@ -1,5 +1,11 @@
 import { useRef } from "react";
-import { useFiles, useCreatFile, useDeleteFile } from "./queries";
+import {
+	useFiles,
+	useCreatFile,
+	useDeleteFile,
+} from "./queries";
+import { downloadFile } from "./api";
+import { triggerBrowserFileDownload } from "../../utils";
 
 export default function FilesPage() {
 	const { data: files } = useFiles();
@@ -15,6 +21,14 @@ export default function FilesPage() {
 					<li key={id}>
 						<p>{name}</p>
 						<button onClick={() => deleteFile(id)}>delete</button>
+						<button
+							onClick={async () => {
+								const fileBlob = await downloadFile(id);
+								triggerBrowserFileDownload(fileBlob, name);
+							}}
+						>
+							download
+						</button>
 					</li>
 				))}
 			</ul>

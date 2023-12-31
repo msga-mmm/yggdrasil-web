@@ -31,3 +31,11 @@ export async function deleteFile(fileID: number): Promise<void> {
 		method: "DELETE",
 	});
 }
+
+export async function downloadFile(fileID: number): Promise<Blob> {
+	const data = await fetch(Endpoints.fileDownload(fileID), {
+		method: "GET",
+	});
+
+	return await data.blob()
+}
