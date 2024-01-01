@@ -4,23 +4,31 @@ import {
 	useCreatFile,
 	useDeleteFile,
 } from "./queries";
-import { downloadFile } from "./api";
 import { triggerBrowserFileDownload } from "../../utils";
+import { useAuthenticatedDownloadFile } from "./api";
+import { useAuth } from "react-oidc-context";
 
 export default function FilesPage() {
+	const { user } = useAuth()
 	const { data: files } = useFiles();
 	const { mutate: createFile } = useCreatFile();
 	const { mutate: deleteFile } = useDeleteFile();
+	const downloadFile = useAuthenticatedDownloadFile()
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
 
 	return (
 		<div>
+			<p>Logged in as: {user?.profile.preferred_username}</p>
+
 			<p>my files:</p>
+
 			<ul>
 				{files?.map(({ id, name }) => (
 					<li key={id}>
 						<p>{name}</p>
+
 						<button onClick={() => deleteFile(id)}>delete</button>
+
 						<button
 							onClick={async () => {
 								const fileBlob = await downloadFile(id);
@@ -41,9 +49,7 @@ export default function FilesPage() {
 
 					if (file === null || file === undefined) return;
 
-					createFile({
-						file,
-					});
+					createFile(file);
 				}}
 			>
 				upload file

@@ -1,11 +1,13 @@
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
-import { createFile, deleteFile, fetchFiles } from "./api";
+import { useAuthenticatedCreateFile, useAuthenticatedDeleteFile, useAuthenticatedFetchFiles } from "./api";
 
 const filesKeys = {
 	all: ["files"],
 };
 
 export function useFiles() {
+	const fetchFiles = useAuthenticatedFetchFiles()
+
 	return useQuery({
 		queryKey: filesKeys.all,
 		queryFn: fetchFiles,
@@ -14,6 +16,7 @@ export function useFiles() {
 
 export function useCreatFile() {
 	const queryClient = useQueryClient();
+	const createFile = useAuthenticatedCreateFile()
 
 	return useMutation({
 		mutationFn: createFile,
@@ -27,6 +30,7 @@ export function useCreatFile() {
 
 export function useDeleteFile() {
 	const queryClient = useQueryClient();
+	const deleteFile = useAuthenticatedDeleteFile()
 
 	return useMutation({
 		mutationFn: deleteFile,
