@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 import { Endpoints } from './api';
 import { triggerBrowserFileDownload } from './utils';
 
-type File = {
+type FileRecord = {
 	id: number;
 	name: string;
 };
@@ -24,9 +24,9 @@ type File = {
 export class AppComponent implements OnInit {
 	title = 'yggdrasil-web';
 	isAuthenticated = false;
-	files: File[] = [];
+	files: FileRecord[] = [];
 	userData: any = null;
-	fileToSubmit: any = null;
+	fileToSubmit: File | null | undefined = null;
 
 	constructor(
 		public oidcSecurityService: OidcSecurityService,
@@ -66,9 +66,9 @@ export class AppComponent implements OnInit {
 		});
 	}
 
-	getFiles(): Observable<File[]> {
+	getFiles(): Observable<FileRecord[]> {
 		return this.http
-			.get<File[]>(Endpoints.files)
+			.get<FileRecord[]>(Endpoints.files)
 	}
 
 	onFileChange(e: HTMLInputElement) {
@@ -77,11 +77,14 @@ export class AppComponent implements OnInit {
 	}
 
 	onFileSubmit() {
+		if (!this.fileToSubmit)
+			return
+
 		const fileRecordData = new FormData();
 		fileRecordData.append('file', this.fileToSubmit);
 
 		this.http
-			.post<File>(Endpoints.files, fileRecordData)
+			.post<FileRecord>(Endpoints.files, fileRecordData)
 			.subscribe(() => {
 				this.loadFiles();
 			});
