@@ -1,26 +1,11 @@
 import { Component, Injectable, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
-import {
-	LoginResponse,
-	OidcSecurityService,
-} from 'angular-auth-oidc-client';
+import { LoginResponse, OidcSecurityService } from 'angular-auth-oidc-client';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, retry, throwError } from 'rxjs';
-
-export function triggerBrowserFileDownload(fileBlob: Blob, fileName: string) {
-	const fileObjectUrl = URL.createObjectURL(fileBlob);
-	const downloadFileLink = document.createElement('a');
-
-	downloadFileLink.href = fileObjectUrl;
-	downloadFileLink.download = fileName;
-
-	document.body.appendChild(downloadFileLink);
-	downloadFileLink.click();
-	document.body.removeChild(downloadFileLink);
-
-	URL.revokeObjectURL(fileObjectUrl);
-}
+import { Endpoints } from './api';
+import { triggerBrowserFileDownload } from './utils';
 
 type File = {
 	id: number;
@@ -48,18 +33,6 @@ export class AppComponent implements OnInit {
 		private http: HttpClient,
 	) { }
 
-	getFiles(): Observable<File[]> {
-		return this.http
-			.get<File[]>('http://localhost:8080/files')
-			.pipe(retry(1), catchError(this.processError));
-	}
-
-	loadFiles() {
-		this.getFiles().subscribe((result) => {
-			this.files = result;
-		});
-	}
-
 	processError(err: any) {
 		let message = '';
 		if (err.error instanceof ErrorEvent) {
@@ -86,6 +59,8 @@ export class AppComponent implements OnInit {
 			});
 	}
 
+	// Auth
+
 	login() {
 		this.oidcSecurityService.authorize();
 	}
@@ -94,6 +69,20 @@ export class AppComponent implements OnInit {
 		this.oidcSecurityService
 			.logoff()
 			.subscribe((result) => console.log(result));
+	}
+
+	// HTTP requests
+
+	loadFiles() {
+		this.getFiles().subscribe((result) => {
+			this.files = result;
+		});
+	}
+
+	getFiles(): Observable<File[]> {
+		return this.http
+			.get<File[]>(Endpoints.files)
+			.pipe(retry(1), catchError(this.processError));
 	}
 
 	onFileChange(e: HTMLInputElement) {
@@ -106,7 +95,7 @@ export class AppComponent implements OnInit {
 		fileRecordData.append('file', this.fileToSubmit);
 
 		this.http
-			.post<File>('http://localhost:8080/files', fileRecordData)
+			.post<File>(Endpoints.files, fileRecordData)
 			.pipe(retry(1), catchError(this.processError))
 			.subscribe(() => {
 				this.loadFiles();
@@ -115,7 +104,7 @@ export class AppComponent implements OnInit {
 
 	onDeleteFile(fileID: number) {
 		this.http
-			.delete(`http://localhost:8080/files/${fileID}`)
+			.delete(Endpoints.file(fileID))
 			.pipe(retry(1), catchError(this.processError))
 			.subscribe(() => {
 				this.loadFiles();
@@ -124,7 +113,7 @@ export class AppComponent implements OnInit {
 
 	onFileDownload(fileID: number, name: string) {
 		this.http
-			.get(`http://localhost:8080/files/${fileID}/download`, {
+			.get(Endpoints.fileDownload(fileID), {
 				responseType: 'blob',
 			})
 			.subscribe((blobData: Blob) => {
