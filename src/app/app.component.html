@@ -17,8 +17,6 @@
   <main class="main">
     <p *ngIf="userData">logged in as: {{ userData.preferred_username }}</p>
 
-    <button (click)="loadFiles()">fetch files</button>
-
     <div>
       <ul>
         <li *ngFor="let file of files">{{ file.name }}

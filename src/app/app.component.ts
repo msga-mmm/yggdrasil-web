@@ -2,7 +2,6 @@ import { Component, Injectable, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import {
-	AuthModule,
 	LoginResponse,
 	OidcSecurityService,
 } from 'angular-auth-oidc-client';
@@ -57,8 +56,6 @@ export class AppComponent implements OnInit {
 
 	loadFiles() {
 		this.getFiles().subscribe((result) => {
-			// console.log('>>>> result');
-
 			this.files = result;
 		});
 	}
@@ -77,22 +74,15 @@ export class AppComponent implements OnInit {
 	}
 
 	ngOnInit() {
-		this.http.get('http://localhost:8080/files').pipe(
-			retry(1),
-			catchError(() => '!'),
-		);
-
 		this.oidcSecurityService
 			.checkAuth()
 			.subscribe((loginResponse: LoginResponse) => {
-				const { isAuthenticated, userData, accessToken, idToken, configId } =
-					loginResponse;
+				const { isAuthenticated, userData } = loginResponse;
 
 				this.isAuthenticated = isAuthenticated;
 				this.userData = userData;
-				// console.log('>>> userdata', userData);
 
-				/*...*/
+				if (isAuthenticated) this.loadFiles();
 			});
 	}
 
@@ -108,7 +98,6 @@ export class AppComponent implements OnInit {
 
 	onFileChange(e: HTMLInputElement) {
 		const file = e.files?.item(0);
-		// console.log(">>> e", e.files?.item(0));
 		this.fileToSubmit = file;
 	}
 
@@ -119,8 +108,7 @@ export class AppComponent implements OnInit {
 		this.http
 			.post<File>('http://localhost:8080/files', fileRecordData)
 			.pipe(retry(1), catchError(this.processError))
-			.subscribe((result) => {
-				// console.log('>>> result', result);
+			.subscribe(() => {
 				this.loadFiles();
 			});
 	}
@@ -129,8 +117,7 @@ export class AppComponent implements OnInit {
 		this.http
 			.delete(`http://localhost:8080/files/${fileID}`)
 			.pipe(retry(1), catchError(this.processError))
-			.subscribe((result) => {
-				// console.log('>>> result', result);
+			.subscribe(() => {
 				this.loadFiles();
 			});
 	}
@@ -141,12 +128,7 @@ export class AppComponent implements OnInit {
 				responseType: 'blob',
 			})
 			.subscribe((blobData: Blob) => {
-				triggerBrowserFileDownload(blobData, name)
+				triggerBrowserFileDownload(blobData, name);
 			});
-		// .pipe(retry(1), catchError(this.processError))
-		// .subscribe((result) => {
-		// 	console.log('>>> result', result);
-		// 	// triggerBrowserFileDownload(result, name)
-		// });
 	}
 }
