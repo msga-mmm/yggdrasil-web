@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { LoginResponse, OidcSecurityService } from 'angular-auth-oidc-client';
 import { HttpClient } from '@angular/common/http';
-import { Observable, catchError, retry, throwError } from 'rxjs';
+import { Observable } from 'rxjs';
 import { Endpoints } from './api';
 import { triggerBrowserFileDownload } from './utils';
 
@@ -32,19 +32,6 @@ export class AppComponent implements OnInit {
 		public oidcSecurityService: OidcSecurityService,
 		private http: HttpClient,
 	) { }
-
-	processError(err: any) {
-		let message = '';
-		if (err.error instanceof ErrorEvent) {
-			message = err.error.message;
-		} else {
-			message = `Error Code: ${err.status}\nMessage: ${err.message}`;
-		}
-		console.log(message);
-		return throwError(() => {
-			message;
-		});
-	}
 
 	ngOnInit() {
 		this.oidcSecurityService
@@ -82,7 +69,6 @@ export class AppComponent implements OnInit {
 	getFiles(): Observable<File[]> {
 		return this.http
 			.get<File[]>(Endpoints.files)
-			.pipe(retry(1), catchError(this.processError));
 	}
 
 	onFileChange(e: HTMLInputElement) {
@@ -96,7 +82,6 @@ export class AppComponent implements OnInit {
 
 		this.http
 			.post<File>(Endpoints.files, fileRecordData)
-			.pipe(retry(1), catchError(this.processError))
 			.subscribe(() => {
 				this.loadFiles();
 			});
@@ -105,7 +90,6 @@ export class AppComponent implements OnInit {
 	onDeleteFile(fileID: number) {
 		this.http
 			.delete(Endpoints.file(fileID))
-			.pipe(retry(1), catchError(this.processError))
 			.subscribe(() => {
 				this.loadFiles();
 			});
