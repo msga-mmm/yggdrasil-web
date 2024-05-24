@@ -12,18 +12,15 @@ export const appConfig: ApplicationConfig = {
 		provideHttpClient(withInterceptors([authInterceptor()])),
 		provideAuth({
 			config: {
-				authority: 'http://localhost:8180/realms/quickstart',
+				authority: 'http://localhost:8180/realms/yggdrasil-web-auth',
 				redirectUrl: window.location.origin,
 				postLogoutRedirectUri: window.location.origin,
-				clientId: 'authz-servlet',
+				clientId: 'yggdrasil-web',
 				scope: 'openid profile email',
 				responseType: 'code',
 				silentRenew: true,
 				useRefreshToken: true,
 				logLevel: LogLevel.Debug,
-				customParamsCodeRequest: {
-					client_secret: 'secret',
-				},
 				secureRoutes: [
 					'http://localhost:8080'
 				],
