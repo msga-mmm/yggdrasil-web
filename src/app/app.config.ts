@@ -5,6 +5,7 @@ import { routes } from './app.routes';
 
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { LogLevel, authInterceptor, provideAuth } from 'angular-auth-oidc-client';
+import { environment } from '../environments/environment';
 
 export const appConfig: ApplicationConfig = {
 	providers: [
@@ -12,17 +13,17 @@ export const appConfig: ApplicationConfig = {
 		provideHttpClient(withInterceptors([authInterceptor()])),
 		provideAuth({
 			config: {
-				authority: 'http://localhost:8180/realms/yggdrasil-web-auth',
+				authority: environment.auth.authority,
 				redirectUrl: window.location.origin,
 				postLogoutRedirectUri: window.location.origin,
-				clientId: 'yggdrasil-web',
+				clientId: environment.auth.clientId,
 				scope: 'openid profile email',
 				responseType: 'code',
 				silentRenew: true,
 				useRefreshToken: true,
 				logLevel: LogLevel.Debug,
 				secureRoutes: [
-					'http://localhost:8080'
+					environment.backendBaseUrl
 				],
 			},
 		}),
