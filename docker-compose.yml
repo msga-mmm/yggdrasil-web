@@ -1,0 +1,13 @@
+services:
+  yggdrasil-web:
+    build: .
+    ports:
+      - 4200:4200
+    healthcheck:
+      test: ['CMD-SHELL', 'curl http://localhost:4200']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - .:/app
+      - /app/node_modules
